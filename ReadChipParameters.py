@@ -1,7 +1,7 @@
-#this script is used to read chip parameters
+#this script is used to read chip parameters from a text file
 import numpy
 import re
-from Parameters_Classes_128mux_chip1 import *
+from Parameters_Classes import *
 
 def read_chip_parameters( directory: str , filename: str):
     chip = Chip()

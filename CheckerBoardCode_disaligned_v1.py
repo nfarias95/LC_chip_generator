@@ -1,8 +1,8 @@
 # This is the LC Library Code
 import gdspy
 import numpy
-from InductorCode_v1 import GenerateInductorCell
-from CapacitorCode_v3 import *
+from InductorCode import GenerateInductorCell
+from CapacitorCode import *
 from WiringCode import GetLCWiringPositions
 
 def GenerateLCCheckerboard(lib, MSLayer, GPLayer, DLayer, OxideLayer, TopLayer, chip, 

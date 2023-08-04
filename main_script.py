@@ -9,7 +9,10 @@ can be used for any type of chip, but that might need a little tweaking.
 
 I wasn't extremelly clean when I made the code, so some parameters are pulled from a text file at the 
 beginning of the code, while other parameters are set on the "Parameters_Classes_example_chip" python
-file containing classes for different cells. 
+file containing classes for different cells.  Please make sure sure you adjust those per your needs.
+
+The code generates an output file. Please update the location of the output directory to a folder on 
+your computer outside of the repository.
 
 
 """
@@ -20,14 +23,14 @@ import os
 #from wafer_cad_lib import WaferCadLib
 from WireBodingPadCode import *
 from CheckerBoardCode_aligned import *
-from Parameters_Classes_128mux_chip1 import *
+from Parameters_Classes import *
 from WiringCode import CreateWires
 from ReadChipParameters import *
 #from ID_capacitor_v5 import *
 
 def main():
     print("\nWelcome to the resonator chip maker!")
-    print("Note: default length unit is microns")
+    print("Note: default length unit is microns. \n")
     # import chip parameters from text file
     directory = os.getcwd() + "/"
     filename = 'Parameters_128mux_example_chip.txt'
@@ -70,8 +73,7 @@ def main():
     L = InductorClass(num_layers)
     
     # CAPACITOR PARAMETERS
-    #C = CapacitorClass("IDC", num_layers) # capacitor type can be parallel plate ("PPC") or interdigitated ("IDC")
-    freq_array = chip.frequency_schedule  # frequency schedule
+    freq_array = chip.frequency_schedule  # frequency schedule (rest of parameters were imported from text file earlier)
     
     # LC PARAMETERS
     LC_height = 2*L.outer_diameter 
@@ -152,7 +154,7 @@ def main():
     GenerateBoundaries( GPLayer, main_cell, x0, y0, boundary, total_chip_height, total_chip_width )
     
     # OUTPUTS
-    
+    print("\n ------")
     print("LC height: ", LC.height ,"LC width: ", LC.width)
     print("Max LC gap: ", LC.total_height)
     print("Number of pads: ", num_pads)
