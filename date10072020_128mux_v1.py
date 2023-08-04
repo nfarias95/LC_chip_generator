@@ -5,10 +5,10 @@ import gdspy
 import numpy
 #from wafer_cad_lib import WaferCadLib
 from WireBodingPadCode_v3 import *
-from CheckerBoardCode_aligned_v1 import *
+from CheckerBoardCode_aligned import *
 from Parameters_Classes_128mux_chip1 import *
-from WiringCode_v7 import CreateWires
-from ReadChipParameters_v4 import *
+from WiringCode import CreateWires
+from ReadChipParameters import *
 #from ID_capacitor_v5 import *
 
 def main():

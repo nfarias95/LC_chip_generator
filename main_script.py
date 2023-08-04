@@ -7,6 +7,9 @@ This code was originally adapted from a C code for the 40mux PPC chip shred by T
 It has been used to generate the fabrication layers of a 128mux chip. I tried making it modular so that it 
 can be used for any type of chip, but that might need a little tweaking.
 
+I wasn't extremelly clean when I made the code, so some parameters are pulled from a text file at the 
+beginning of the code, while other parameters are set on the "Parameters_Classes_example_chip" python
+file containing classes for different cells. 
 
 
 """
@@ -15,11 +18,11 @@ import gdspy
 import numpy
 import os
 #from wafer_cad_lib import WaferCadLib
-from WireBodingPadCode_v3 import *
-from CheckerBoardCode_aligned_v1 import *
+from WireBodingPadCode import *
+from CheckerBoardCode_aligned import *
 from Parameters_Classes_128mux_chip1 import *
-from WiringCode_v7 import CreateWires
-from ReadChipParameters_v4 import *
+from WiringCode import CreateWires
+from ReadChipParameters import *
 #from ID_capacitor_v5 import *
 
 def main():

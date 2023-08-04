@@ -21,16 +21,6 @@ def GenerateLCCheckerboard(lib, MSLayer, GPLayer, DLayer, OxideLayer, TopLayer, 
     L_wire_loc_array = numpy.ones([num_spots, 2]) * (-3.14159)
     C_param_arrays = CapacitorMemoryClass(num_spots) 
     
-    #VARIABLE TO SAVE LC HEIGHT OF EACH PREVIOUS COLUMN - annoying because I read row-> col instead of col->row
-    LC_heights = numpy.zeros(chip.num_LC_cols)
-    y_LC = numpy.zeros(chip.num_LC_cols)
-    # add offset for even columns
-    for col in range(chip.num_LC_cols):
-        if col % 2 == 0:
-            y_LC[col] = y_LC[col] - 2 * L.outer_diameter - chip.LC2LC_y_gap[col]
-    #make space for the labels                
-    y_LC[0] = y_LC[0] + labels_height
-    
     for row in range(chip.num_LC_rows):
         x_LC = 0 # go back to first column location
         for col in range(chip.num_LC_cols):
@@ -40,56 +30,45 @@ def GenerateLCCheckerboard(lib, MSLayer, GPLayer, DLayer, OxideLayer, TopLayer, 
                freq = freq_array[spot]
             else:
                 freq = -2
-                LC.height = 0
                 
             
             if freq > 0:
                 #find channel number
                 channel = chip.channel_order[spot]
-                                      
+                
+                                
                 #create LC cell
                 LC_cell = GenerateLCCell(lib, freq, channel, MSLayer, GPLayer, DLayer, OxideLayer, TopLayer, inductor_cell, L,
                         C, via_pad_width, TL_width, LC, tolerance)
                 
-                #save height of LC:
-                LC.height = L.outer_diameter + LC.gap + C.height
-                if L.num_layers == 1:
-                    LC.height = LC.height + L.pad_gap + L.pad_width
-                
-                
-                   
-                # check column for orientation                    
-                if col % 2 == 0 : 
-                    # find y_LC
-                    #print("Channel: ", channel, "y_LC: ", y_LC[col], "LC height: ", LC.height)
-                    y_LC[col] = y_LC[col] + chip.LC2LC_y_gap[col] + LC.height
+                #reference LC cell -- careful with orientation  
+                #check if it is top row to allow for space for long IDC capacitors
+                if row == (chip.num_LC_rows - 1) and C.type == "IDC":
+                    y_offset = C.small_freq_offset
+                else:
+                    y_offset = 0
                     
+                # check column for orientation    
+                ref_LC_y = y_LC + y_offset
+                
+                if col % 2 == 0 :
                     #insert LC
                     ref_LC_x = x_LC 
-                    ref_LC_y = y_LC[col] 
                     ref_LC = gdspy.CellReference( LC_cell, (ref_LC_x, ref_LC_y))
-                    #insert channel number on top of inductor
-                    channel_y_offset = + L.height + LC.channel_text_gap
-                    #create channel label
-                    channel_text = gdspy.Text(str(channel), LC.channel_text_size, 
-                                          (x_LC  , y_LC[col] + channel_y_offset ),  horizontal = True, **GPLayer ) 
                     
+                    #insert channel number on top of inductor
+                    channel_y_offset = y_offset + L.height + 15
+                    #print(L.height)
                 else:
                     #insert LC with rotation
                     ref_LC_x = x_LC + L.outer_diameter 
-                    ref_LC_y = y_LC[col] 
                     ref_LC = gdspy.CellReference( LC_cell, (ref_LC_x, ref_LC_y), rotation=180)
                     #insert channel number at the bottom of inductor
-                    channel_y_offset =  - (L.height + LC.channel_text_gap + LC.channel_text_size) 
+                    channel_y_offset = y_offset - (L.height + 15 + LC.channel_text_size) 
                     
-                    #create channel label
-                    channel_text = gdspy.Text(str(channel), LC.channel_text_size, 
-                                          (x_LC  , y_LC[col] + channel_y_offset ),  horizontal = True, **GPLayer ) 
-                    #update y location
-                    LC_heights[col]  = LC.height
-                    y_LC[col] = y_LC[col] + LC_heights[col] + chip.LC2LC_y_gap[col]
-                    
-
+                #create channel label
+                channel_text = gdspy.Text(str(channel), LC.channel_text_size, 
+                                          (x_LC  , y_LC + channel_y_offset ),  horizontal = True, **GPLayer ) 
                 
                 
                 
@@ -100,21 +79,16 @@ def GenerateLCCheckerboard(lib, MSLayer, GPLayer, DLayer, OxideLayer, TopLayer, 
                 
                 #add LC cell and label to all LCs cell    
                 allLCs_cell.add([channel_text, ref_LC])
-                
-                #END OF IF STATEMENT
-            else:
-                LC.height = 0
-                    
-
+            
             #update x location
             x_LC = x_LC + LC.width + chip.LC2LC_x_gap
-
 
             #update counter
             spot = spot + 1
     
-    LC.total_height = max(y_LC)
-        
+        #update y location
+        #print("LC height: ", LC.height, "LC2LC y gap:", chip.LC2LC_y_gap)
+        y_LC = y_LC + LC.height + chip.LC2LC_y_gap[0]
     
 
     return allLCs_cell, C_wire_loc_array, L_wire_loc_array, C_param_arrays
